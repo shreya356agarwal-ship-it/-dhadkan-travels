@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dhadkan Mobility</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Prototype Nav -->
+        <div style="position:absolute; top: 20px; left: 20px; right: 20px; display:flex; justify-content: space-between; z-index:100;">
+            <a href="index.html" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; border-radius:100px; color:#fff; text-decoration:none; font-size:0.85rem; font-weight:700;"><i class="ri-home-fill"></i> Web</a>
+            <a href="driver.html" style="background: var(--brand-red); color:#fff; padding: 10px 15px; border-radius:100px; text-decoration:none; font-size:0.85rem; font-weight:700; box-shadow: 0 5px 15px rgba(225,29,72,0.3);"><i class="ri-steering-line"></i> Driver App</a>
+        </div>
+
+        <!-- Map Background -->
+        <div class="bg-layer" id="bgLayer"></div>
+        <div class="bg-gradient-fade"></div>
+
+        <!-- Top Status Nav (Floating Glass) -->
+        <nav class="top-nav">
+            <div class="user-greeting">
+                <img src="https://i.pravatar.cc/150?img=68" class="avatar" alt="Avatar">
+                <span class="g-text">Rahul</span>
+            </div>
+            <div class="service-toggles">
+                <button class="s-btn active">Ride</button>
+                <button class="s-btn" onclick="alert('Dhanbad Daily Hyper-Local Delivery launching next month!')"><i class="ri-box-3-fill"></i> Send</button>
+            </div>
+        </nav>
+
+        <!-- Dynamic Bottom Sheet -->
+        <main class="bottom-sheet">
+            <div class="sheet-handle"></div>
+
+            <!-- State 1: Search -->
+            <div class="state-panel" id="searchState">
+                <h1 class="greeting">Where to?</h1>
+                
+                <div class="input-wrapper">
+                    <div class="input-icon"><i class="ri-search-2-line"></i></div>
+                    <input type="text" id="destinationInput" placeholder="Search destination..." readonly>
+                </div>
+                
+                <!-- Premium Pass Banner -->
+                <div class="pass-banner">
+                    <div class="p-icon"><i class="ri-vip-crown-fill"></i></div>
+                    <div class="p-text">
+                        <strong>Student Pass Active</strong>
+                        <p>Unlimited Totos < 3km &bull; Valid</p>
+                    </div>
+                </div>
+                
+                <div class="quick-destinations">
+                    <div class="qd-item" onclick="document.querySelector('.input-wrapper').click()"><div class="icon"><i class="ri-home-heart-fill"></i></div><span>Home</span></div>
+                    <div class="qd-item" onclick="document.querySelector('.input-wrapper').click()"><div class="icon"><i class="ri-building-4-fill"></i></div><span>ISM</span></div>
+                    <div class="qd-item q-dest" onclick="document.querySelector('.input-wrapper').click()">
+                        <div class="dest-row">
+                            <i class="ri-map-pin-time-fill"></i>
+                            <div><strong>Dhanbad Station</strong><p>Recent</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 2: Landmark Selection -->
+            <div class="state-panel hidden" id="landmarksState">
+                <div class="panel-header row" style="margin-bottom: 20px;">
+                    <button class="back-btn" onclick="document.getElementById('landmarksState').classList.add('hidden');document.getElementById('searchState').classList.remove('hidden');" style="border:none; color:#fff; cursor:pointer;"><i class="ri-arrow-left-line"></i></button>
+                    <h2>Select Route</h2>
+                </div>
+                <ul class="landmark-list" id="landmarkList">
+                    <li data-dest="Opposite SSLNT College"><div class="l-icon"><i class="ri-map-pin-2-fill"></i></div><div class="l-text"><h4>Opposite SSLNT College</h4><p>Luby Circular Road</p></div></li>
+                    <li data-dest="Steel Gate"><div class="l-icon"><i class="ri-map-pin-2-fill"></i></div><div class="l-text"><h4>Steel Gate Main Square</h4><p>Saraidhela</p></div></li>
+                    <li data-dest="City Centre Mall"><div class="l-icon"><i class="ri-map-pin-2-fill"></i></div><div class="l-text"><h4>City Centre Mall Main Gate</h4><p>Subhash Chowk</p></div></li>
+                    <li data-dest="Dhanbad Railway Station"><div class="l-icon"><i class="ri-map-pin-2-fill"></i></div><div class="l-text"><h4>Dhanbad Railway Station</h4><p>South Side (Purana Station)</p></div></li>
+                </ul>
+            </div>
+
+            <!-- State 3: Vehicles -->
+            <div class="state-panel hidden" id="vehiclesState">
+                <div class="panel-header row" style="margin-bottom: 20px; align-items:flex-start;">
+                    <button class="back-btn" onclick="document.getElementById('vehiclesState').classList.add('hidden');document.getElementById('searchState').classList.remove('hidden');" style="border:none; color:#fff; margin-top:5px; cursor:pointer;"><i class="ri-arrow-left-line"></i></button>
+                    <div>
+                        <h2>Select Vehicle</h2>
+                        <p style="color:var(--brand-red); font-weight:700; margin-top:5px;" id="selectedDestText">...</p>
+                    </div>
+                </div>
+                
+                <div class="vehicle-options">
+                    <div class="vehicle-card" data-type="toto">
+                        <img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/267d3028213879.56052bebc8ea7.jpg" alt="E-Toto" onerror="this.src='https://images.unsplash.com/photo-1519003300449-424ad0405076?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80'">
+                        <div class="v-details">
+                            <h4>Shared E-Toto</h4>
+                            <p>3 mins &bull; Eco</p>
+                        </div>
+                        <div class="v-price">₹15/s</div>
+                    </div>
+                    
+                    <div class="vehicle-card selected" data-type="bike">
+                        <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="Bike">
+                        <div class="v-details">
+                            <h4>Quick Bike</h4>
+                            <p>1 min &bull; 1 Pax</p>
+                        </div>
+                        <div class="v-price">₹45</div>
+                    </div>
+                    
+                    <div class="vehicle-card" data-type="cab">
+                        <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="Cab">
+                        <div class="v-details">
+                            <h4>Premium Cab</h4>
+                            <p>5 mins &bull; 4 Pax</p>
+                        </div>
+                        <div class="v-price">₹150</div>
+                    </div>
+                </div>
+
+                <div class="night-safe-box">
+                    <div class="ns-left">
+                        <i class="ri-moon-clear-fill"></i>
+                        <div class="ns-txt">
+                            <strong>Night-Safe Verified</strong>
+                            <p>Dispatch top 5★ drivers</p>
+                        </div>
+                    </div>
+                    <label class="switch-small">
+                        <input type="checkbox" checked>
+                        <span class="slider-small"></span>
+                    </label>
+                </div>
+
+                <button class="action-btn" id="confirmRideBtn">Confirm Dhadkan</button>
+            </div>
+
+            <!-- State 4: Toto Seat Selector -->
+            <div class="state-panel hidden" id="totoSeatsState">
+                <div class="panel-header row" style="margin-bottom: 20px;">
+                    <div class="back-btn"><i class="ri-arrow-left-line"></i></div>
+                    <h2>Toto Seating</h2>
+                </div>
+                <div class="toto-layout">
+                    <div class="driver-seat">Driver Console</div>
+                    <div class="passenger-row front">
+                        <div class="seat available">Front L</div>
+                        <div class="seat available">Front R</div>
+                    </div>
+                    <div class="passenger-row back">
+                        <div class="seat available">Back L</div>
+                        <div class="seat available">Back M</div>
+                        <div class="seat occupied"><i class="ri-user-fill"></i></div>
+                    </div>
+                </div>
+                <div class="action-footer">
+                    <div class="toto-summary">Total: <strong id="totoTotal">₹0</strong></div>
+                    <button class="action-btn" id="bookTotoBtn" disabled>Book Seats</button>
+                </div>
+            </div>
+
+            <!-- State 5: Active Ride -->
+            <div class="state-panel hidden" id="activeRideState">
+                <div class="ride-status">
+                    <div class="status-glow"></div>
+                    <h2>Arriving in 2 mins</h2>
+                    <p style="color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-top:5px; letter-spacing:2px;">Prepare for Pickup</p>
+                </div>
+                
+                <div class="driver-card-premium">
+                    <div class="d-avatar"><i class="ri-user-smile-fill"></i></div>
+                    <div class="d-info">
+                        <h4>Manoj Kumar</h4>
+                        <p>4.8★ &bull; JH10-X-4321</p>
+                    </div>
+                    <div class="otp-box">
+                        <p>START OTP</p>
+                        <strong>4812</strong>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:15px; margin-top:15px;">
+                    <button class="action-btn icon-btn" style="background:#222; color:#fff; flex:0.4;"><i class="ri-phone-fill"></i></button>
+                    <button class="action-btn" style="background:var(--brand-red); color:#fff; flex:1;" id="cancelRideBtn">Cancel Ride</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- SOS Hub Floating Over Map -->
+        <div class="sos-hub" id="sosHub">
+            <div class="sos-btn" id="sosBtn"><i class="ri-shield-cross-fill"></i></div>
+            <div class="sos-menu hidden" id="sosMenu">
+                <div class="sos-action pulse-red"><i class="ri-alarm-warning-fill"></i> Trigger Siren</div>
+                <div class="sos-action"><i class="ri-police-car-fill"></i> Dial Police (100)</div>
+                <div class="sos-action"><i class="ri-share-forward-fill"></i> Broadcast GPS</div>
+            </div>
+        </div>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

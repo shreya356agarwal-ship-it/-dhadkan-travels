@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dhadkan | Driver Command Center</title>
+    <link rel="stylesheet" href="driver.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Map Background -->
+        <div class="bg-map"></div>
+        <div class="bg-gradient"></div>
+
+        <!-- Top Nav -->
+        <header class="driver-nav">
+            <div class="profile">
+                <img src="https://i.pravatar.cc/150?img=11" alt="Driver">
+                <div class="info">
+                    <h3>Suresh Kumar</h3>
+                    <p>E-Toto &bull; JH10-X-1234</p>
+                </div>
+            </div>
+            <div class="status-toggle">
+                <span id="statusText">ONLINE</span>
+                <label class="switch">
+                    <input type="checkbox" id="onlineToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard" id="mainDash">
+            
+            <!-- Earnings -->
+            <div class="earnings-card glass-card">
+                <p>Today's Earnings</p>
+                <h1>₹1,450<span class="cents">.00</span></h1>
+                <div class="fee-status"><i class="ri-check-double-line"></i> 100% Yours. ₹50 Platform Fee Paid.</div>
+            </div>
+
+            <!-- Micro-Finance Loyalty -->
+            <div class="finance-banner">
+                <div class="f-icon"><i class="ri-bank-card-fill"></i></div>
+                <div class="f-text">
+                    <h4>Micro-Loan Unlocked</h4>
+                    <p>Your 4.8★ rating qualifies you for a 0% interest Exide Battery upgrade.</p>
+                </div>
+                <i class="ri-arrow-right-s-line"></i>
+            </div>
+
+            <!-- Heatmap Tracker -->
+            <div class="radar-card glass-card">
+                <div class="radar-header">
+                    <h3><i class="ri-radar-fill"></i> Live Demand Radar</h3>
+                    <span>Updating...</span>
+                </div>
+                <div class="hotspots">
+                    <div class="hotspot urgent">
+                        <div class="h-info">
+                            <h4>Bank More Junction</h4>
+                            <p>45+ Pending Requests</p>
+                        </div>
+                        <div class="surge-badge">Surge x1.2</div>
+                    </div>
+                    <div class="hotspot">
+                        <div class="h-info">
+                            <h4>Railway Station</h4>
+                            <p>12 Pending Requests</p>
+                        </div>
+                        <p class="dist">2.5 km away</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Incoming Ride Modal -->
+        <div class="ride-request hidden" id="incomingRide">
+            <div class="request-timer"></div>
+            <div class="req-header">
+                <div class="tag">Shared Toto Route</div>
+                <h2>₹30 <span class="seats">2 Seats</span></h2>
+            </div>
+            <div class="req-route">
+                <div class="r-node"><div class="dot"></div> IIT ISM Gate</div>
+                <div class="r-line"></div>
+                <div class="r-node"><div class="dot dest"></div> City Centre Mall</div>
+            </div>
+            <div class="passenger-info">
+                <div class="p-avatar"><i class="ri-user-fill"></i></div>
+                <div class="p-details">
+                    <h4>Rahul D.</h4>
+                    <p>4.9★ Rider &bull; Paying via UPI</p>
+                </div>
+            </div>
+            <div class="req-actions">
+                <button class="btn-decline" id="btnDecline">Ignore</button>
+                <button class="btn-accept" id="btnAccept">Accept Route</button>
+            </div>
+        </div>
+
+        <!-- Rider App Link (For Demo) -->
+        <!-- Prototype Links -->
+        <div style="position:absolute; bottom: 20px; left: 20px; right: 20px; display:flex; justify-content:center; gap:15px; z-index:100;">
+            <button class="switch-app-btn" style="width:auto; bottom:0; left:0; transform:none; position:relative;" onclick="window.location.href='app.html'">
+                <i class="ri-smartphone-line"></i> Rider App
+            </button>
+            <button class="switch-app-btn" style="width:auto; bottom:0; left:0; transform:none; position:relative; background:var(--brand-red); color:#fff;" onclick="window.location.href='index.html'">
+                <i class="ri-global-line"></i> Website
+            </button>
+        </div>
+
+    </div>
+    
+    <script src="driver.js"></script>
+</body>
+</html>
