@@ -105,31 +105,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    let socket = null;
+    // -------- 1. INITIALIZE SERVERLESS FIREBASE --------
+    const firebaseConfig = {
+        apiKey: "AIzaSyAvUbnpjTS-g0reifAS350MeziVH4RWJPY", // Live Key Injected
+        projectId: "dhadkan-travels",
+    };
+
+    let db = null;
     try {
-        socket = io("http://localhost:3000");
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        console.log("✅ Firebase Serverless Sync Online!");
     } catch(err) {
-        console.warn("WebSocket server not detected, using simulation mode.");
+        console.warn("Firebase Serverless sync offline, using dark simulation mode.");
     }
 
-    // Listen for real-time dispatch matching!
-    if(socket) {
-        socket.on('ride_accepted', (data) => {
-            console.log("✅ LIVE MATCH! Driver accepted.", data);
-            
-            // Dynamically update UI with actual real-world driver details
-            const dName = document.querySelector('.d-info h4');
-            const dDetails = document.querySelector('.d-info p');
-            const dAvatar = document.querySelector('.d-avatar');
-            
-            if(dName) dName.innerText = data.driverName || "Driver";
-            if(dDetails) dDetails.innerText = `${data.rating}★ • ${data.vehicleNumber}`;
-            if(dAvatar && data.driverAvatar) dAvatar.innerHTML = `<img src="${data.driverAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-            
-            // Shift screen instantly
-            switchState([searchState, vehiclesState, totoSeatsState, landmarksState], activeRideState);
-        });
-    }
+    // Remainder legacy socket block removed for serverless swap to safeguard execution loops inside snapshots
 
     if(confirmRideBtn) confirmRideBtn.addEventListener('click', () => {
         if(!selectedVehicle) return;
@@ -137,16 +130,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if(selectedVehicle === 'toto') {
             switchState([vehiclesState], totoSeatsState);
         } else {
-            if(socket && socket.connected) {
+            if(db) {
                 confirmRideBtn.innerText = "Broadcasting to Drivers...";
-                socket.emit('request_ride', {
+                confirmRideBtn.style.opacity = '0.6';
+                
+                db.collection('rides').add({
+                    pickup: pickupInput ? pickupInput.value : 'My Location',
                     destination: currentDest,
+                    vehicle: selectedVehicle,
                     fare: selectedVehicle === 'bike' ? 45 : 150,
-                    vehicle: selectedVehicle
+                    status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(docRef => {
+                    console.log("Ride Requested securely with ID:", docRef.id);
+                    // Single Live Snapshot listener for state updating
+                    db.collection('rides').doc(docRef.id).onSnapshot(doc => {
+                        const data = doc.data();
+                        if(data && data.status === 'accepted') {
+                            const dName = document.querySelector('.d-info h4');
+                            const dDetails = document.querySelector('.d-info p');
+                            
+                            if(dName) dName.innerText = data.driverName || "Suresh Kumar";
+                            if(dDetails) dDetails.innerText = `${data.driverRating || 4.8}★ • ${data.vehicleNumber || 'JH10-X-1234'}`;
+                            
+                            switchState([vehiclesState], activeRideState);
+                        }
+                    });
                 });
-                // Note: We don't advance the screen until driver explicitly accepts
             } else {
-                switchState([vehiclesState], activeRideState); // Fallback
+                switchState([vehiclesState], activeRideState); // Fallback Offline Simulation
             }
         }
     });
@@ -164,13 +176,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if(bookTotoBtn) bookTotoBtn.addEventListener('click', () => {
-        if(socket && socket.connected) {
+        if(db) {
             bookTotoBtn.innerText = "Pinging E-Totos...";
-            socket.emit('request_ride', {
+            bookTotoBtn.style.opacity = '0.6';
+            
+            db.collection('rides').add({
+                pickup: pickupInput ? pickupInput.value : 'My Location',
                 destination: currentDest,
-                fare: selectedSeats * 15,
                 vehicle: 'toto',
-                seats: selectedSeats
+                seats: selectedSeats,
+                fare: selectedSeats * 15,
+                status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(docRef => {
+                db.collection('rides').doc(docRef.id).onSnapshot(doc => {
+                    const data = doc.data();
+                    if(data && data.status === 'accepted') {
+                        switchState([totoSeatsState], activeRideState);
+                    }
+                });
             });
         } else {
             switchState([totoSeatsState], activeRideState);
