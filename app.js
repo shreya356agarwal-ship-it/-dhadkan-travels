@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmRideBtn = document.getElementById('confirmRideBtn');
     const bookTotoBtn = document.getElementById('bookTotoBtn');
     const cancelRideBtn = document.getElementById('cancelRideBtn');
-    const backBtn = document.querySelector('.back-btn');
+    const backBtns = document.querySelectorAll('.back-btn');
     const seats = document.querySelectorAll('.seat.available');
     const totoTotal = document.getElementById('totoTotal');
 
@@ -40,11 +40,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    if(searchWrapper) searchWrapper.addEventListener('click', (e) => {
-        if(e.target.tagName.toLowerCase() === 'input') return; // Prevent panel transition if typing in input
-        if(bgLayer) bgLayer.classList.add('zoom-bg');
-        switchState([searchState], landmarksState);
-    });
+    // Multi-Input Listener
+    const pickupInput = document.getElementById('pickupInput');
+    const searchToVehiclesBtn = document.getElementById('searchToVehiclesBtn');
+
+    function checkSearchState() {
+        const pick = pickupInput ? pickupInput.value : '';
+        const drop = destinationInput ? destinationInput.value : '';
+        
+        if (pick && drop && searchToVehiclesBtn) {
+            searchToVehiclesBtn.style.opacity = '1';
+            searchToVehiclesBtn.style.pointerEvents = 'auto';
+        } else if (searchToVehiclesBtn) {
+            searchToVehiclesBtn.style.opacity = '0.6';
+            searchToVehiclesBtn.style.pointerEvents = 'none';
+        }
+    }
+
+    if(pickupInput) pickupInput.addEventListener('input', checkSearchState);
+    if(destinationInput) destinationInput.addEventListener('input', checkSearchState);
+
+    if (searchToVehiclesBtn) {
+        searchToVehiclesBtn.addEventListener('click', () => {
+             const pick = pickupInput ? pickupInput.value : '';
+             currentDest = destinationInput ? destinationInput.value : '';
+             if(selectedDestText) selectedDestText.innerText = currentDest;
+             if(bgLayer) bgLayer.classList.add('zoom-bg');
+             switchState([searchState], vehiclesState); // Skip sub-panel selection for manual flow!
+        });
+    }
+
+    const qdItems = document.querySelectorAll('.qd-item');
+    if(qdItems) {
+        qdItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const textEl = item.querySelector('span') || item.querySelector('strong');
+                const text = textEl ? textEl.innerText : '';
+                if(destinationInput && text) {
+                    destinationInput.value = text;
+                    checkSearchState();
+                }
+            });
+        });
+    }
 
     if(landmarkList) landmarkList.addEventListener('click', (e) => {
         const li = e.target.closest('li');
@@ -139,7 +177,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    if(backBtn) backBtn.addEventListener('click', () => switchState([totoSeatsState], vehiclesState));
+    if(backBtns) backBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const parentPane = btn.closest('.state-panel') || btn.closest('.panel-state');
+            if(!parentPane) return;
+
+            if (parentPane === landmarkList || parentPane.id === 'landmarksState') {
+                switchState([landmarksState], searchState);
+                if(bgLayer) bgLayer.classList.remove('zoom-bg');
+            } else if (parentPane.id === 'vehiclesState') {
+                switchState([vehiclesState], landmarksState);
+            } else if (parentPane.id === 'totoSeatsState') {
+                switchState([totoSeatsState], vehiclesState);
+            } else {
+                // Fallback direct reversal
+                if(parentPane.id === 'activeRideState') switchState([activeRideState], searchState);
+                else {
+                    const prev = parentPane.previousElementSibling;
+                    if(prev) switchState([parentPane], prev);
+                }
+            }
+        });
+    });
 
     if(cancelRideBtn) cancelRideBtn.addEventListener('click', () => {
         switchState([activeRideState], searchState);
@@ -245,6 +304,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => { toast.style.display = 'none'; }, 500);
             }, 4000);
             if(sosHub) sosHub.click();
+        });
+    }
+
+    // Pass Banner Trigger - Add Daily Utility value!
+    const passBanner = document.querySelector('.pass-banner');
+    if(passBanner) {
+        passBanner.addEventListener('click', () => {
+            alert("🎓 Dhadkan Student Pass Info\n\nStatus: ACTIVE\nValidity: 28 Days Remaining\nPerks: Unlimited E-Toto rides under 3km.");
         });
     }
 
