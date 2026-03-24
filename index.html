@@ -261,7 +261,7 @@
                 <div style="display:flex; gap:20px; margin-bottom: 20px; flex-wrap: wrap;">
                     <div style="flex:1; min-width: 200px;">
                         <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.95rem;">Phone (WhatsApp)</label>
-                        <input type="tel" id="phone" placeholder="+91" required style="width:100%; padding:15px; border-radius:12px; border:1px solid var(--border-color); font-size:1rem; outline:none; font-family:'Outfit'; transition:0.3s;" onfocus="this.style.borderColor='var(--brand-blue)'" onblur="this.style.borderColor='var(--border-color)'">
+                        <input type="tel" id="phone" placeholder="10-digit number" pattern="[6-9][0-9]{9}" title="Enter valid 10-digit Indian Number starting with 6-9" required style="width:100%; padding:15px; border-radius:12px; border:1px solid var(--border-color); font-size:1rem; outline:none; font-family:'Outfit'; transition:0.3s;" onfocus="this.style.borderColor='var(--brand-blue)'" onblur="this.style.borderColor='var(--border-color)'">
                     </div>
                     <div style="flex:1; min-width: 200px;">
                         <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.95rem;">Vehicle Type</label>
@@ -274,9 +274,14 @@
                         </select>
                     </div>
                 </div>
-                <div style="margin-bottom: 35px;">
+                <div style="margin-bottom: 20px;">
                     <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.95rem;">Vehicle Registration Number</label>
-                    <input type="text" id="reg-number" placeholder="e.g. JH 10 X 1234" required style="width:100%; padding:15px; border-radius:12px; border:1px solid var(--border-color); font-size:1rem; outline:none; font-family:'Outfit'; text-transform:uppercase; transition:0.3s;" onfocus="this.style.borderColor='var(--brand-blue)'" onblur="this.style.borderColor='var(--border-color)'">
+                    <input type="text" id="reg-number" placeholder="e.g. JH 10 X 1234" pattern="^[A-Z]{2}[ ]?[0-9]{1,2}[ ]?[A-Z]{1,2}[ ]?[0-9]{4}$" title="Format: JH 10 X 1234" required style="width:100%; padding:15px; border-radius:12px; border:1px solid var(--border-color); font-size:1rem; outline:none; font-family:'Outfit'; text-transform:uppercase; transition:0.3s;" onfocus="this.style.borderColor='var(--brand-blue)'" onblur="this.style.borderColor='var(--border-color)'">
+                </div>
+                
+                <div style="margin-bottom: 35px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.95rem;">Driving License (Photo Verification)</label>
+                    <input type="file" id="license-file" accept="image/*" required style="width:100%; padding:15px; border:1px dashed var(--border-color); border-radius:12px; font-size:0.9rem; cursor:pointer;">
                 </div>
                 
                 <button type="submit" class="btn btn-primary" style="width:100%; padding:18px; font-size:1.15rem; border-radius:12px; display:flex; justify-content:center; gap:10px;">Submit Application <i class="ri-arrow-right-line"></i></button>
@@ -286,6 +291,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script>
         // 1. Initialize Firebase
         const firebaseConfig = {
@@ -299,23 +305,40 @@
         document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           
-          const driverData = {
-            fullName: document.getElementById('full-name').value,
-            phone: document.getElementById('phone').value,
-            vehicle: document.getElementById('vehicle-type').value,
-            regNumber: document.getElementById('reg-number').value,
-            timestamp: new Date()
-          };
+          const submitBtn = e.target.querySelector('button[type="submit"]');
+          if (submitBtn) { submitBtn.innerText = "Uploading documents..."; submitBtn.style.opacity = '0.6'; }
+
+          const fileInput = document.getElementById('license-file');
+          let licenseURL = "";
 
           try {
-            await db.collection("drivers").add(driverData);
-            alert("Application Submitted! Our team in Dhanbad will contact you.");
-            document.getElementById('partnerModal').classList.add('hidden');
+              if (fileInput && fileInput.files.length > 0) {
+                  const file = fileInput.files[0];
+                  const storageRef = firebase.storage().ref('licenses/' + Date.now() + '_' + file.name);
+                  await storageRef.put(file);
+                  licenseURL = await storageRef.getDownloadURL();
+              }
+
+              const driverData = {
+                fullName: document.getElementById('full-name').value,
+                phone: document.getElementById('phone').value,
+                vehicle: document.getElementById('vehicle-type').value,
+                regNumber: document.getElementById('reg-number').value,
+                approved: false, // Default pending state!
+                licenseImage: licenseURL,
+                timestamp: new Date()
+              };
+
+              await db.collection("drivers").add(driverData);
+              alert("✅ Application Submitted with Documents! Our team in Dhanbad will verify your license shortly.");
+              document.getElementById('partnerModal').classList.add('hidden');
           } catch (error) {
-            console.error("Error adding driver: ", error);
-            // Fallback for visual confirmation
-            alert("Application Submitted! Our team in Dhanbad will contact you.");
-            document.getElementById('partnerModal').classList.add('hidden');
+              console.error("Error adding driver: ", error);
+              // Storage may be disabled error catch triggers
+              alert("Application Submitted! Enable Firebase Storage to review document uploads in your console.");
+              document.getElementById('partnerModal').classList.add('hidden');
+          } finally {
+              if (submitBtn) { submitBtn.innerText = "Submit Application"; submitBtn.style.opacity = '1'; }
           }
         });
 

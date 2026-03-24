@@ -14,6 +14,21 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
+    <!-- Driver Verification Login Modal -->
+    <div id="loginModal" style="position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(15,23,42,0.9); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px; color:#fff; text-align:center;">
+        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding:40px; border-radius:24px; max-width:400px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+            <div style="background:var(--brand-blue); color:#fff; width:60px; height:60px; border-radius:50%; display:flex; justify-content:center; align-items:center; margin: 0 auto 20px; font-size:1.8rem;">
+                <i class="ri-steering-fill"></i>
+            </div>
+            <h2 style="font-size:1.8rem; margin-bottom:10px;">Driver Dashboard</h2>
+            <p style="color:rgba(255,255,255,0.6); margin-bottom:30px; font-size:0.95rem;">Enter your registered phone number to access live requests.</p>
+            
+            <input type="tel" id="loginPhone" placeholder="Enter Phone (+91)" style="width:100%; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.2); color:#fff; font-size:1rem; outline:none; text-align:center; margin-bottom:15px;" required>
+            
+            <button id="loginBtn" class="action-btn" style="background:var(--brand-blue); width:100%; padding:15px; border-radius:120px; font-weight:700; cursor:pointer;">Verify & Go Online</button>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Map Background -->
         <div class="bg-map"></div>

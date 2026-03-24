@@ -47,9 +47,10 @@
                 
                 <!-- Pickup -->
                 <label for="pickupInput" style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; display: block; padding-left: 5px;">Pickup Location</label>
-                <div class="input-wrapper" style="margin-bottom: 15px;">
+                <div class="input-wrapper" style="margin-bottom: 15px; display:flex; align-items:center;">
                     <div class="input-icon"><i class="ri-map-pin-user-fill" style="color:#10b981;"></i></div>
-                    <input list="dhanbad-landmarks" id="pickupInput" placeholder="Enter Pickup..." style="pointer-events: auto; background:transparent; color:#fff;" value="My Location">
+                    <input list="dhanbad-landmarks" id="pickupInput" placeholder="Enter Pickup..." style="pointer-events: auto; background:transparent; color:#fff; flex:1;">
+                    <div id="useLiveLocationBtn" style="cursor:pointer; pointer-events:auto; margin-right:10px;"><i class="ri-radar-line" style="color:#10b981; font-size:1.2rem;" title="Use Live GPS"></i></div>
                 </div>
                 
                 <!-- Drop Off -->
@@ -165,7 +166,7 @@
                 <!-- Optional WhatsApp Booking -->
                 <div style="text-align:center; margin-top:20px;">
                     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">Having app trouble? Book directly:</p>
-                    <a href="https://wa.me/919999999999?text=Hi%20Dhadkan!%20I%20want%20to%20book%20an%20E-Toto%20to%20Dhanbad..." target="_blank" style="color:#fff; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; width:100%; padding:15px; border-radius:100px; background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3);">
+                    <a id="whatsappBookingBtn" href="https://wa.me/919999999999?text=Hi%20Dhadkan!%20I%20want%20to%20book%20a%20ride..." target="_blank" style="color:#fff; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; width:100%; padding:15px; border-radius:100px; background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.3);">
                         <i class="ri-whatsapp-fill" style="font-size:1.3rem; color:#25D366;"></i> WhatsApp Booking
                     </a>
                 </div>

@@ -55,6 +55,50 @@ document.addEventListener('DOMContentLoaded', () => {
           });
     }
 
+    // -------- DRIVER LOGIN VERIFICATION LOCK --------
+    const loginBtn = document.getElementById('loginBtn');
+    const loginPhoneInput = document.getElementById('loginPhone');
+    const loginModal = document.getElementById('loginModal');
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const phone = loginPhoneInput ? loginPhoneInput.value.trim() : '';
+            if (!phone) { alert("Please enter your Phone Number to log in!"); return; }
+
+            if (db) {
+                loginBtn.innerText = "Verifying Account...";
+                loginBtn.style.opacity = '0.6';
+                
+                db.collection('drivers').where('phone', '==', phone).get()
+                  .then(snapshot => {
+                       if (!snapshot.empty) {
+                           const driver = snapshot.docs[0].data();
+                           // Check Approval Status flag inside Firebase
+                           if (driver.approved === true) {
+                               if (loginModal) loginModal.style.transform = 'translateY(-100%)'; // Slide out!
+                               setTimeout(() => { if (loginModal) loginModal.style.display = 'none'; }, 500);
+                               console.log("Welcome Approved Driver:", driver.fullName);
+                           } else {
+                               alert("⚠️ Application Pending. Our Dhanbad desk is reviewing your vehicle verification notes.");
+                               loginBtn.innerText = "Verify & Go Online";
+                               loginBtn.style.opacity = '1';
+                           }
+                       } else {
+                           alert("❌ Phone number not found. You must apply on the homepage first to join inside the fleet.");
+                           loginBtn.innerText = "Verify & Go Online";
+                           loginBtn.style.opacity = '1';
+                       }
+                  }).catch(e => {
+                       // Fallback Offline/Diagnose mode
+                       console.warn("Offline diagnosis triggered");
+                       if (loginModal) loginModal.style.display = 'none';
+                  });
+            } else {
+                 if (loginModal) loginModal.style.display = 'none'; // Fallback Sandbox
+            }
+        });
+    }
+
     toggle.addEventListener('change', (e) => {
         if(e.target.checked) {
             statusText.innerText = 'ONLINE';

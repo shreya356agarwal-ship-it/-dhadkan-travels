@@ -200,7 +200,55 @@ document.addEventListener('DOMContentLoaded', () => {
             switchState([totoSeatsState], activeRideState);
         }
     });
+    // -------- GEOLOCATION GPS HANDLERS --------
+    const useLiveLocationBtn = document.getElementById('useLiveLocationBtn');
+    if (useLiveLocationBtn) {
+        useLiveLocationBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const icon = useLiveLocationBtn.querySelector('i');
+            if(icon) icon.className = 'ri-loader-4-line'; // Spinner
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lng = pos.coords.longitude.toFixed(4);
+                    if (pickupInput) pickupInput.value = `${lat}, ${lng} (Live GPS)`;
+                    if(icon) {
+                        icon.className = 'ri-checkbox-circle-fill';
+                        icon.style.color = '#10b981';
+                    }
+                    checkSearchState();
+                }, (err) => {
+                    alert("GPS access denied. Please enable Location in browser settings.");
+                    if(icon) icon.className = 'ri-radar-line';
+                });
+            }
+        });
+    }
 
+    const whatsappBookingBtn = document.getElementById('whatsappBookingBtn');
+    if (whatsappBookingBtn) {
+        whatsappBookingBtn.addEventListener('click', (e) => {
+             e.preventDefault();
+             const dest = currentDest || (destinationInput ? destinationInput.value : 'Destination');
+             const rideType = selectedVehicle ? selectedVehicle.toUpperCase() : 'Ride';
+
+             if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition((pos) => {
+                       const lat = pos.coords.latitude;
+                       const lng = pos.coords.longitude;
+                       const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                       const msg = `Hi Dhadkan! I want to book a ${rideType} to ${dest}. My Live GPS Location is: ${mapsLink}`;
+                       window.open(`https://wa.me/919999999999?text=${encodeURIComponent(msg)}`, '_blank');
+                  }, () => {
+                       const msg = `Hi Dhadkan! I want to book a ${rideType} to ${dest}.`;
+                       window.open(`https://wa.me/919999999999?text=${encodeURIComponent(msg)}`, '_blank');
+                  });
+             } else {
+                  window.open(whatsappBookingBtn.href, '_blank');
+             }
+        });
+    }
     if(backBtns) backBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const parentPane = btn.closest('.state-panel') || btn.closest('.panel-state');
