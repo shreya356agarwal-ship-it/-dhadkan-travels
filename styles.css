@@ -172,3 +172,33 @@ input:checked + .slider-small:before { transform: translateX(20px); }
 @media (min-width: 501px) {
     .app-container { border-radius: 60px; margin-top: 2vh; height: 96vh; border: 16px solid #0A0A0A; outline: 2px solid #e5e7eb; box-shadow: 0 50px 120px rgba(0,0,0,0.25); }
 }
+
+/* Glassmorphism for the Navigation and Cards */
+.navbar, .vehicle-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+/* Floating Hover Animation */
+.vehicle-card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.vehicle-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Anti-Gravity Pulse for the SOS Button */
+.sos-btn {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
