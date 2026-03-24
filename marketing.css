@@ -55,6 +55,22 @@ p { color: var(--text-muted); line-height: 1.6; }
 }
 .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; color: var(--brand-red);}
 .logo span { color: var(--brand-red); }
+
+/* Live Ticker Alert for Dhanbad News - Highly Actionable Utility */
+.live-ticker {
+    position: fixed; top: 130px; left: 50%; transform: translateX(-50%); 
+    width: 90%; max-width: 800px; z-index: 99;
+    background: rgba(255, 255, 255, 0.95); color: var(--text-main); padding: 12px 25px; border-radius: 100px;
+    display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 0.85rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.pulse-ticker { width: 10px; height: 10px; background: #10b981; border-radius: 50%; animation: pulse-green 1.5s infinite; }
+@keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+
+.ticker-content { flex: 1; overflow: hidden; white-space: nowrap; }
+.ticker-content marquee { font-weight: 600; color: var(--text-muted); }
+
 .nav-links { display: flex; gap: 30px; }
 .nav-links a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.95rem; transition: color 0.3s; }
 .nav-links a:hover { color: var(--brand-red); }
